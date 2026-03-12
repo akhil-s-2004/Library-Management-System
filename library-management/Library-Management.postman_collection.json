@@ -1,0 +1,1216 @@
+{
+  "info": {
+    "name": "Library Management API",
+    "_postman_id": "f4ac6e3a-4f11-4a46-b7da-a5dbe9af2199",
+    "description": "Postman collection for current Library Management endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000/api/v1"
+    },
+    {
+      "key": "memberToken",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Member\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Search Books",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/books?page=0&limit=10&search=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "books"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Member",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "dashboard"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Membership Status",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/membership",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "membership"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Set PIN",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pin\": \"1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/set-pin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "set-pin"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update PIN",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPin\": \"1234\",\n  \"newPin\": \"5678\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/update-pin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "update-pin"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Issues",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/issues?status=active",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "issues"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Reservations",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "reservations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Reservation",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": 23\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "reservations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancel Reservation",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/reservations/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "reservations",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Fines",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{memberToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/fines",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "fines"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Kiosk",
+      "item": [
+        {
+          "name": "Borrow",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"membershipNumber\": \"MEM001\",\n  \"pin\": \"1234\",\n  \"copyId\": 78\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/kiosk/borrow",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "kiosk",
+                "borrow"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Return",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"copyId\": 78\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/kiosk/return",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "kiosk",
+                "return"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "dashboard"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Users - List",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Users - Create",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"newadmin@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Users - Update",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Users - Pending",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/pending",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "pending"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Users - Approve",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}",
+                "approve"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Users - Reject",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/reject",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}",
+                "reject"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Books - List",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/books?page=0&size=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "books"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Books - Create",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Sample Book\",\n  \"isbn\": \"ISBN999\",\n  \"publisher\": \"Sample House\",\n  \"publishedYear\": 2024,\n  \"edition\": \"1st\",\n  \"language\": \"English\",\n  \"description\": \"Sample description\",\n  \"authors\": [\"Author One\"],\n  \"genres\": [\"Fiction\"],\n  \"copies\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/books",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "books"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Books - Get By Id",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/books/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "books",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Books - Update",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Book\",\n  \"publisher\": \"Updated Publisher\",\n  \"publishedYear\": 2025,\n  \"edition\": \"2nd\",\n  \"language\": \"English\",\n  \"description\": \"Updated\",\n  \"authors\": [\"Author One\"],\n  \"genres\": [\"Fiction\"],\n  \"copies\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/books/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "books",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Books - Delete",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/books/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "books",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Books - Copies List",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/books/1/copies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "books",
+                "1",
+                "copies"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Books - Add Copy",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/books/1/copies?location=RACK-1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "books",
+                "1",
+                "copies"
+              ],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "RACK-1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Copies - Get",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/copies/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "copies",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Copies - Update",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"AVAILABLE\",\n  \"shelfLocation\": \"RACK-2\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/copies/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "copies",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Copies - Delete",
+          "request": {
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/copies/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "copies",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reservations - All",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/reservations",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reservations"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Fines - All",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/fines",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "fines"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Fines - Detail",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/fines/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "fines",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Fines - Pay",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/fines/1/pay",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "fines",
+                "1",
+                "pay"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Fines - Waive",
+          "request": {
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/fines/1/waive",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "fines",
+                "1",
+                "waive"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Memberships",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/memberships",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "memberships"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Analytics Overview",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/analytics/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "analytics",
+                "overview"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logs",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/logs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "logs"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
