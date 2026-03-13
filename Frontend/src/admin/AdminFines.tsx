@@ -6,6 +6,7 @@ type FineStatus = 'Pending' | 'Paid' | 'Waived'
 
 type Fine = {
     id: number | null
+    issueId: number | null
     member: string
     email: string
     book: string
@@ -35,7 +36,7 @@ const AdminFines = () => {
     const [fines, setFines] = useState<Fine[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
-    const [saving, setSaving] = useState<number | null>(null)
+    const [saving, setSaving] = useState<string | null>(null)
     const [query, setQuery] = useState('')
     const [activeTab, setActiveTab] = useState<FilterTab>('All')
     const [confirm, setConfirm] = useState<{ action: 'paid' | 'waive'; fine: Fine } | null>(null)
@@ -47,7 +48,8 @@ const AdminFines = () => {
             setError(null)
             const data = await adminService.fetchFines()
             const mapped: Fine[] = (Array.isArray(data) ? data : []).map((f: any) => ({
-                id: f.id ?? f.fineId,
+                id: f.id ?? f.fineId ?? null,
+                issueId: f.issueId ?? null,
                 member: f.member ?? f.memberName ?? '—',
                 email: f.email ?? f.memberEmail ?? '—',
                 book: f.bookTitle ?? '—',
@@ -68,7 +70,8 @@ const AdminFines = () => {
     useEffect(() => { loadFines() }, [loadFines])
 
     const handleMarkPaid = async (id: number) => {
-        setSaving(id)
+        const key = `id-${id}`
+        setSaving(key)
         setActionError(null)
         try {
             await adminService.markFinePaid(id)
@@ -82,7 +85,8 @@ const AdminFines = () => {
     }
 
     const handleWaive = async (id: number) => {
-        setSaving(id)
+        const key = `id-${id}`
+        setSaving(key)
         setActionError(null)
         try {
             await adminService.waiveFine(id)
@@ -95,12 +99,47 @@ const AdminFines = () => {
         }
     }
 
+    const handleMarkPaidByIssue = async (issueId: number) => {
+        const key = `issue-${issueId}`
+        setSaving(key)
+        setActionError(null)
+        try {
+            await adminService.markFineByIssuePaid(issueId)
+            setFines(prev => prev.map(f => f.issueId === issueId ? { ...f, status: 'Paid' } : f))
+        } catch (err: any) {
+            const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message || 'Failed to mark fine as paid.'
+            setActionError(msg)
+        } finally {
+            setSaving(null)
+        }
+    }
+
+    const handleWaiveByIssue = async (issueId: number) => {
+        const key = `issue-${issueId}`
+        setSaving(key)
+        setActionError(null)
+        try {
+            await adminService.waiveFineByIssue(issueId)
+            setFines(prev => prev.map(f => f.issueId === issueId ? { ...f, status: 'Waived', amount: 0 } : f))
+        } catch (err: any) {
+            const msg = err?.response?.data?.error || err?.response?.data?.message || err?.message || 'Failed to waive fine.'
+            setActionError(msg)
+        } finally {
+            setSaving(null)
+        }
+    }
+
     const handleConfirm = async () => {
-        if (!confirm || confirm.fine.id === null) return
+        if (!confirm) return
         const { action, fine } = confirm
         setConfirm(null)
-        if (action === 'paid') await handleMarkPaid(fine.id!)
-        else await handleWaive(fine.id!)
+        if (fine.id != null) {
+            if (action === 'paid') await handleMarkPaid(fine.id)
+            else await handleWaive(fine.id)
+        } else if (fine.issueId != null) {
+            if (action === 'paid') await handleMarkPaidByIssue(fine.issueId)
+            else await handleWaiveByIssue(fine.issueId)
+        }
     }
 
     const filtered = fines.filter((f) => {
@@ -210,9 +249,9 @@ const AdminFines = () => {
                                 </span>
                             </td>
                             <td className='px-4 py-3'>
-                                {saving !== null && saving === fine.id ? (
+                                {(saving === `id-${fine.id}` || saving === `issue-${fine.issueId}`) ? (
                                     <Loader2 size={16} className='animate-spin text-[#570000]' />
-                                ) : fine.status === 'Pending' && fine.id !== null ? (
+                                ) : fine.status === 'Pending' && (fine.id != null || fine.issueId != null) ? (
                                     <div className='flex items-center gap-1'>
                                         <button
                                             onClick={() => setConfirm({ action: 'paid', fine })}
@@ -227,8 +266,6 @@ const AdminFines = () => {
                                             <Minus size={10} /> Waive
                                         </button>
                                     </div>
-                                ) : fine.status === 'Pending' && fine.id === null ? (
-                                    <span className='text-xs text-amber-500 italic'>Auto-accruing</span>
                                 ) : (
                                     <span className='text-xs text-gray-400 italic'>No action</span>
                                 )}

@@ -112,6 +112,13 @@ export const markFinePaid = (fineId: number) =>
 export const waiveFine = (fineId: number) =>
     api.put(`/admin/fines/${fineId}/waive`).then(r => r.data)
 
+// For auto-accruing fines with no DB record — materializes then acts
+export const markFineByIssuePaid = (issueId: number) =>
+    api.put(`/admin/fines/by-issue/${issueId}/pay`).then(r => r.data)
+
+export const waiveFineByIssue = (issueId: number) =>
+    api.put(`/admin/fines/by-issue/${issueId}/waive`).then(r => r.data)
+
 // ─── Admin Profile ───────────────────────────────────────────────────────────
 
 export const fetchAdminProfile = () =>

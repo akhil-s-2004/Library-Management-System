@@ -149,6 +149,7 @@ public class AdminController {
 
             IssueRecord issue = issueRepository.findById(fine.getIssueId()).orElse(null);
             if (issue != null) {
+                map.put("issueId", issue.getIssueId());
                 map.put("dueDate", issue.getDueDate());
                 map.put("returnDate", issue.getReturnDate());
                 map.put("issueStatus", issue.getStatus());
@@ -192,6 +193,7 @@ public class AdminController {
             long daysOverdue = ChronoUnit.DAYS.between(issue.getDueDate(), today);
             Map<String, Object> map = new HashMap<>();
             map.put("id", null);
+            map.put("issueId", issue.getIssueId());
             map.put("amount", BigDecimal.valueOf(10).multiply(BigDecimal.valueOf(daysOverdue)));
             map.put("paidStatus", "unpaid");
             map.put("paymentDate", null);
@@ -239,6 +241,53 @@ public class AdminController {
                 .orElseThrow(() -> new RuntimeException("Fine not found"));
         fine.setPaidStatus("waived");
         fine.setAmount(BigDecimal.ZERO);
+        fineRepository.save(fine);
+        return "Fine waived";
+    }
+
+    /**
+     * Materialize a real-time pending fine (no DB record yet) and mark it as paid.
+     * Creates the fine record from the current overdue calculation, then pays it.
+     */
+    @PutMapping("/fines/by-issue/{issueId}/pay")
+    public String payFineByIssue(@PathVariable Long issueId) {
+        IssueRecord issue = issueRepository.findById(issueId)
+                .orElseThrow(() -> new RuntimeException("Issue not found"));
+        LocalDate today = LocalDate.now();
+        if (issue.getDueDate() == null || !today.isAfter(issue.getDueDate())) {
+            throw new RuntimeException("No overdue fine for this issue");
+        }
+        long days = ChronoUnit.DAYS.between(issue.getDueDate(), today);
+        BigDecimal amount = BigDecimal.valueOf(10).multiply(BigDecimal.valueOf(days));
+
+        Fine fine = fineRepository.findByIssueId(issueId)
+                .orElseGet(() -> Fine.builder().issueId(issueId).build());
+        fine.setAmount(amount);
+        fine.setPaidStatus("paid");
+        fine.setPaymentDate(today);
+        fineRepository.save(fine);
+        return "Fine marked as paid";
+    }
+
+    /**
+     * Materialize a real-time pending fine (no DB record yet) and waive it.
+     */
+    @PutMapping("/fines/by-issue/{issueId}/waive")
+    public String waiveFineByIssue(@PathVariable Long issueId) {
+        IssueRecord issue = issueRepository.findById(issueId)
+                .orElseThrow(() -> new RuntimeException("Issue not found"));
+        LocalDate today = LocalDate.now();
+        if (issue.getDueDate() == null || !today.isAfter(issue.getDueDate())) {
+            throw new RuntimeException("No overdue fine for this issue");
+        }
+        long days = ChronoUnit.DAYS.between(issue.getDueDate(), today);
+        BigDecimal amount = BigDecimal.valueOf(10).multiply(BigDecimal.valueOf(days));
+
+        Fine fine = fineRepository.findByIssueId(issueId)
+                .orElseGet(() -> Fine.builder().issueId(issueId).build());
+        fine.setAmount(amount);
+        fine.setPaidStatus("waived");
+        fine.setPaymentDate(today);
         fineRepository.save(fine);
         return "Fine waived";
     }
