@@ -44,6 +44,7 @@ const AdminUsers = () => {
     const [currentPage, setCurrentPage] = useState(0)
     const PAGE_SIZE = 20
     const [confirm, setConfirm] = useState<{ action: string; userId: string; userName: string } | null>(null)
+    const [actionError, setActionError] = useState<string | null>(null)
 
     const loadUsers = useCallback(async () => {
         try {
@@ -66,7 +67,7 @@ const AdminUsers = () => {
             await adminService.approveUser(userId)
             setUsers(prev => prev.map(u => u.userId === userId ? { ...u, status: 'active' } : u))
         } catch {
-            alert('Failed to approve user.')
+            setActionError('Failed to approve user.')
         } finally {
             setSaving(null)
         }
@@ -78,7 +79,7 @@ const AdminUsers = () => {
             await adminService.rejectUser(userId)
             setUsers(prev => prev.map(u => u.userId === userId ? { ...u, status: 'suspended' } : u))
         } catch {
-            alert('Failed to reject user.')
+            setActionError('Failed to reject user.')
         } finally {
             setSaving(null)
         }
@@ -90,7 +91,7 @@ const AdminUsers = () => {
             await adminService.updateUser(userId, { status: 'suspended' })
             setUsers(prev => prev.map(u => u.userId === userId ? { ...u, status: 'suspended' } : u))
         } catch {
-            alert('Failed to suspend user.')
+            setActionError('Failed to suspend user.')
         } finally {
             setSaving(null)
         }
@@ -102,7 +103,7 @@ const AdminUsers = () => {
             await adminService.approveUser(userId)
             setUsers(prev => prev.map(u => u.userId === userId ? { ...u, status: 'active' } : u))
         } catch {
-            alert('Failed to reactivate user.')
+            setActionError('Failed to reactivate user.')
         } finally {
             setSaving(null)
         }
@@ -182,6 +183,14 @@ const AdminUsers = () => {
             {error && (
                 <div className='flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl'>
                     <AlertCircle size={16} /> {error}
+                </div>
+            )}
+
+            {/* Action Error */}
+            {actionError && (
+                <div className='flex items-center justify-between bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl'>
+                    <div className='flex items-center gap-2'><AlertCircle size={16} /> {actionError}</div>
+                    <button onClick={() => setActionError(null)} className='ml-4 hover:opacity-70'><X size={14} /></button>
                 </div>
             )}
 

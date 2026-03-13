@@ -70,6 +70,10 @@ const AdminBooks = () => {
 
     // Saving
     const [saving, setSaving] = useState(false)
+    const [saveError, setSaveError] = useState<string | null>(null)
+    const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
+    const [deleteError, setDeleteError] = useState<string | null>(null)
+    const [copyErrors, setCopyErrors] = useState<Record<number, string>>({})
 
     const loadBooks = useCallback(async () => {
         try {
@@ -148,11 +152,13 @@ const AdminBooks = () => {
         setForm(emptyForm)
         setIsbnLookupResult(null)
         setIsbnError(null)
+        setSaveError(null)
         setShowModal(true)
     }
 
     const openEdit = async (b: BookWithMeta) => {
         setEditBook(b)
+        setSaveError(null)
         // Fetch full detail to get authors/genres
         try {
             const detail = await adminService.fetchBookById(b.bookId)
@@ -186,6 +192,7 @@ const AdminBooks = () => {
     const handleSave = async () => {
         if (!form.title || !form.isbn) return
         setSaving(true)
+        setSaveError(null)
         try {
             const payload = {
                 title: form.title, isbn: form.isbn, publisher: form.publisher,
@@ -205,29 +212,35 @@ const AdminBooks = () => {
             setCopiesMap({}) // reset copies cache
             loadBooks()
         } catch (err: unknown) {
-            // Extract the real backend error message from Axios response
             const axiosErr = err as { response?: { data?: { error?: string } }; message?: string }
             const backendMsg = axiosErr?.response?.data?.error
-            alert(backendMsg || axiosErr?.message || 'Failed to save book')
-
+            setSaveError(backendMsg || axiosErr?.message || 'Failed to save book')
         } finally {
             setSaving(false)
         }
     }
 
-    const handleDelete = async (id: number) => {
-        if (!confirm('Delete this book and all its copies?')) return
+    const handleDelete = (id: number) => {
+        setDeleteError(null)
+        setConfirmDelete(id)
+    }
+
+    const doDelete = async () => {
+        if (confirmDelete == null) return
+        const id = confirmDelete
+        setConfirmDelete(null)
         try {
             await adminService.deleteBook(id)
             loadBooks()
             setCopiesMap(p => { const n = { ...p }; delete n[id]; return n })
         } catch {
-            alert('Failed to delete book.')
+            setDeleteError('Failed to delete book.')
         }
     }
 
     const handleAddCopy = async (bookId: number) => {
         const count = Math.max(1, parseInt(addCopiesCount[bookId] || '1'))
+        setCopyErrors(p => { const n = { ...p }; delete n[bookId]; return n })
         try {
             for (let i = 0; i < count; i++) {
                 await adminService.addCopy(bookId)
@@ -237,7 +250,7 @@ const AdminBooks = () => {
             loadCopies(bookId)
             setAddCopiesCount(p => ({ ...p, [bookId]: '' }))
         } catch {
-            alert('Failed to add copy.')
+            setCopyErrors(p => ({ ...p, [bookId]: 'Failed to add copy.' }))
         }
     }
 
@@ -271,6 +284,14 @@ const AdminBooks = () => {
             {error && (
                 <div className='flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl'>
                     <AlertCircle size={16} /> {error}
+                </div>
+            )}
+
+            {/* Delete Error */}
+            {deleteError && (
+                <div className='flex items-center justify-between bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl'>
+                    <div className='flex items-center gap-2'><AlertCircle size={16} /> {deleteError}</div>
+                    <button onClick={() => setDeleteError(null)} className='ml-4 hover:opacity-70'><X size={14} /></button>
                 </div>
             )}
 
@@ -352,6 +373,12 @@ const AdminBooks = () => {
                                                         <Plus size={11} /> Add Copies
                                                     </button>
                                                 </div>
+                                                {copyErrors[book.bookId] && (
+                                                    <div className='flex items-center justify-between bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-xl mb-3'>
+                                                        <span>{copyErrors[book.bookId]}</span>
+                                                        <button onClick={() => setCopyErrors(p => { const n = { ...p }; delete n[book.bookId]; return n })} className='ml-2 hover:opacity-70'><X size={12} /></button>
+                                                    </div>
+                                                )}
                                                 {copiesLoading[book.bookId] ? (
                                                     <Loader2 className='animate-spin text-[#570000]' size={18} />
                                                 ) : (
@@ -539,17 +566,53 @@ const AdminBooks = () => {
                                 </div>
                             )}
                         </div>
+                        <div className='px-6 py-4 border-t border-[#f0dada] flex flex-col gap-3'>
+                            {saveError && (
+                                <div className='flex items-center justify-between bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl'>
+                                    <div className='flex items-center gap-2'><AlertCircle size={16} /> {saveError}</div>
+                                    <button onClick={() => setSaveError(null)} className='ml-3 hover:opacity-70'><X size={14} /></button>
+                                </div>
+                            )}
+                            <div className='flex justify-end gap-3'>
+                                <button onClick={() => setShowModal(false)} className='border border-gray-300 text-gray-600 text-sm font-semibold px-5 py-2 rounded-full hover:bg-gray-50 transition-colors'>
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSave}
+                                    disabled={!form.title || !form.isbn || saving}
+                                    className='flex items-center gap-2 bg-[#570000] hover:bg-[#7a1c18] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded-full shadow-md transition-all'
+                                >
+                                    {saving ? <Loader2 size={14} className='animate-spin' /> : <Check size={14} />}
+                                    {editBook ? 'Save Changes' : 'Add Book & Generate QRs'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirm Modal */}
+            {confirmDelete != null && (
+                <div className='fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4'>
+                    <div className='bg-white rounded-3xl shadow-2xl w-full max-w-sm'>
+                        <div className='px-6 py-5 border-b border-[#f0dada]'>
+                            <h2 className='font-bold text-[#570000] text-lg'>Delete Book?</h2>
+                        </div>
+                        <div className='px-6 py-5'>
+                            <p className='text-sm text-gray-600'>This will permanently delete the book and all its copies. This action cannot be undone.</p>
+                        </div>
                         <div className='px-6 py-4 border-t border-[#f0dada] flex justify-end gap-3'>
-                            <button onClick={() => setShowModal(false)} className='border border-gray-300 text-gray-600 text-sm font-semibold px-5 py-2 rounded-full hover:bg-gray-50 transition-colors'>
+                            <button
+                                onClick={() => setConfirmDelete(null)}
+                                className='border border-gray-300 text-gray-600 text-sm font-semibold px-5 py-2 rounded-full hover:bg-gray-50 transition-colors'
+                            >
                                 Cancel
                             </button>
                             <button
-                                onClick={handleSave}
-                                disabled={!form.title || !form.isbn || saving}
-                                className='flex items-center gap-2 bg-[#570000] hover:bg-[#7a1c18] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded-full shadow-md transition-all'
+                                onClick={doDelete}
+                                className='bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-5 py-2 rounded-full shadow-md transition-all'
                             >
-                                {saving ? <Loader2 size={14} className='animate-spin' /> : <Check size={14} />}
-                                {editBook ? 'Save Changes' : 'Add Book & Generate QRs'}
+                                Delete
                             </button>
                         </div>
                     </div>
